@@ -1,0 +1,230 @@
+.category-budgets {
+  max-width: 900px;
+}
+
+.category-budgets h2 {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: var(--spacing-xl);
+}
+
+.budget-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+
+.budget-card {
+  background-color: var(--color-light-bg);
+  border: 1px solid var(--color-light-border);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-lg);
+  transition: all var(--transition-base);
+}
+
+html.dark .budget-card {
+  background-color: var(--color-dark-bg-secondary);
+  border-color: var(--color-dark-border);
+}
+
+.budget-card:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+html.dark .budget-card:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.budget-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-md);
+}
+
+.budget-title {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
+.category-icon {
+  font-size: 1.5rem;
+}
+
+.category-name {
+  font-weight: 600;
+  font-size: 1.1rem;
+  color: var(--color-light-text);
+}
+
+html.dark .category-name {
+  color: var(--color-dark-text);
+}
+
+.budget-amount {
+  font-weight: 700;
+  font-size: 1.25rem;
+  color: var(--color-light-accent);
+}
+
+html.dark .budget-amount {
+  color: var(--color-dark-accent);
+}
+
+.budget-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-md);
+  padding: var(--spacing-md) 0;
+  border-top: 1px solid var(--color-light-border);
+  border-bottom: 1px solid var(--color-light-border);
+}
+
+html.dark .budget-info {
+  border-color: var(--color-dark-border);
+}
+
+.budget-limit {
+  display: flex;
+  gap: var(--spacing-lg);
+  font-size: 0.95rem;
+  color: var(--color-light-text-secondary);
+}
+
+html.dark .budget-limit {
+  color: var(--color-dark-text-secondary);
+}
+
+.budget-edit {
+  display: flex;
+  gap: var(--spacing-sm);
+  flex-grow: 1;
+}
+
+.budget-edit input {
+  flex-grow: 1;
+  padding: var(--spacing-md);
+  border: 1px solid var(--color-light-border);
+  border-radius: var(--radius-md);
+  background-color: var(--color-light-bg-secondary);
+  color: var(--color-light-text);
+}
+
+html.dark .budget-edit input {
+  background-color: var(--color-dark-bg);
+  border-color: var(--color-dark-border);
+  color: var(--color-dark-text);
+}
+
+.btn-small {
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: var(--radius-md);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  background-color: transparent;
+  color: var(--color-light-accent);
+  border: 1px solid var(--color-light-accent);
+}
+
+html.dark .btn-small {
+  color: var(--color-dark-accent);
+  border-color: var(--color-dark-accent);
+}
+
+.btn-small:hover {
+  background-color: var(--color-light-accent);
+  color: white;
+}
+
+html.dark .btn-small:hover {
+  background-color: var(--color-dark-accent);
+}
+
+.btn-small.btn-primary {
+  background-color: var(--color-light-accent);
+  color: white;
+  border-color: var(--color-light-accent);
+}
+
+html.dark .btn-small.btn-primary {
+  background-color: var(--color-dark-accent);
+  border-color: var(--color-dark-accent);
+}
+
+.btn-small.btn-secondary {
+  background-color: transparent;
+  color: var(--color-light-text-secondary);
+  border-color: var(--color-light-border);
+}
+
+html.dark .btn-small.btn-secondary {
+  color: var(--color-dark-text-secondary);
+  border-color: var(--color-dark-border);
+}
+
+.budget-progress {
+  margin-top: var(--spacing-md);
+}
+
+.progress-bar {
+  width: 100%;
+  height: 8px;
+  background-color: var(--color-light-bg-secondary);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  margin-bottom: var(--spacing-sm);
+}
+
+html.dark .progress-bar {
+  background-color: var(--color-dark-bg);
+}
+
+.progress-fill {
+  height: 100%;
+  background-color: #10b981;
+  transition: width var(--transition-base), background-color var(--transition-base);
+}
+
+.progress-fill.over-budget {
+  background-color: #ef4444;
+}
+
+.progress-text {
+  font-size: 0.85rem;
+  color: var(--color-light-text-secondary);
+}
+
+html.dark .progress-text {
+  color: var(--color-dark-text-secondary);
+}
+
+.empty-message {
+  text-align: center;
+  padding: var(--spacing-2xl);
+  color: var(--color-light-text-secondary);
+}
+
+html.dark .empty-message {
+  color: var(--color-dark-text-secondary);
+}
+
+@media (max-width: 768px) {
+  .budget-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .budget-info {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-md);
+  }
+
+  .budget-edit {
+    width: 100%;
+  }
+}

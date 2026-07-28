@@ -1,0 +1,10 @@
+.app {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: var(--color-light-bg);
+}
+
+html.dark .app {
+  background-color: var(--color-dark-bg);
+}

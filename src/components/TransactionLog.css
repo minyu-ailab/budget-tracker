@@ -1,0 +1,224 @@
+.transaction-log {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+
+.transaction-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--spacing-lg);
+}
+
+.transaction-header h2 {
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.filters {
+  display: flex;
+  gap: var(--spacing-md);
+  flex-wrap: wrap;
+}
+
+.filter-input,
+.filter-select {
+  padding: var(--spacing-md) var(--spacing-lg);
+  border: 1px solid var(--color-light-border);
+  border-radius: var(--radius-md);
+  background-color: var(--color-light-bg);
+  color: var(--color-light-text);
+  font-size: 0.95rem;
+}
+
+html.dark .filter-input,
+html.dark .filter-select {
+  background-color: var(--color-dark-bg-secondary);
+  border-color: var(--color-dark-border);
+  color: var(--color-dark-text);
+}
+
+.filter-input::placeholder {
+  color: var(--color-light-text-secondary);
+}
+
+html.dark .filter-input::placeholder {
+  color: var(--color-dark-text-secondary);
+}
+
+.transactions-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.transaction-item {
+  background-color: var(--color-light-bg);
+  border: 1px solid var(--color-light-border);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-lg);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: all var(--transition-base);
+}
+
+html.dark .transaction-item {
+  background-color: var(--color-dark-bg-secondary);
+  border-color: var(--color-dark-border);
+}
+
+.transaction-item:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+html.dark .transaction-item:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.transaction-info {
+  flex-grow: 1;
+}
+
+.transaction-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--spacing-lg);
+  margin-bottom: var(--spacing-sm);
+}
+
+.transaction-name {
+  font-weight: 600;
+  color: var(--color-light-text);
+}
+
+html.dark .transaction-name {
+  color: var(--color-dark-text);
+}
+
+.transaction-amount {
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+.transaction-amount.income {
+  color: #10b981;
+}
+
+.transaction-amount.expense {
+  color: #ef4444;
+}
+
+.transaction-meta {
+  display: flex;
+  gap: var(--spacing-md);
+  flex-wrap: wrap;
+  align-items: center;
+  font-size: 0.85rem;
+  color: var(--color-light-text-secondary);
+}
+
+html.dark .transaction-meta {
+  color: var(--color-dark-text-secondary);
+}
+
+.category-badge {
+  background-color: var(--color-light-bg-secondary);
+  padding: var(--spacing-xs) var(--spacing-md);
+  border-radius: var(--radius-sm);
+  font-weight: 500;
+}
+
+html.dark .category-badge {
+  background-color: var(--color-dark-bg);
+}
+
+.transaction-notes {
+  font-style: italic;
+  color: var(--color-light-text-secondary);
+}
+
+html.dark .transaction-notes {
+  color: var(--color-dark-text-secondary);
+}
+
+.transaction-actions {
+  display: flex;
+  gap: var(--spacing-sm);
+  margin-left: var(--spacing-lg);
+}
+
+.btn-icon {
+  padding: var(--spacing-sm);
+  border-radius: var(--radius-md);
+  background-color: transparent;
+  color: var(--color-light-text-secondary);
+  transition: all var(--transition-fast);
+  cursor: pointer;
+}
+
+html.dark .btn-icon {
+  color: var(--color-dark-text-secondary);
+}
+
+.btn-icon:hover {
+  background-color: var(--color-light-bg-secondary);
+  color: var(--color-light-accent);
+}
+
+html.dark .btn-icon:hover {
+  background-color: var(--color-dark-bg);
+  color: var(--color-dark-accent);
+}
+
+.btn-icon.btn-danger:hover {
+  color: #ef4444;
+}
+
+.empty-message {
+  text-align: center;
+  padding: var(--spacing-2xl);
+  color: var(--color-light-text-secondary);
+}
+
+html.dark .empty-message {
+  color: var(--color-dark-text-secondary);
+}
+
+@media (max-width: 768px) {
+  .transaction-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .filters {
+    width: 100%;
+    flex-direction: column;
+  }
+
+  .filter-input,
+  .filter-select {
+    width: 100%;
+  }
+
+  .transaction-item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .transaction-actions {
+    margin-left: 0;
+    margin-top: var(--spacing-md);
+    width: 100%;
+  }
+
+  .transaction-header-row {
+    flex-direction: column;
+    align-items: flex-start;
+    margin-bottom: var(--spacing-md);
+  }
+}
