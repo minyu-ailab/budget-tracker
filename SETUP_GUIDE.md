@@ -12,18 +12,18 @@ If you haven't already, install these globally:
 
 ### Development Commands
 
-All npm commands must use the corporate registry. You can either:
+All npm commands should use the public npm registry. You can either:
 
 **Option 1: Add to each command (recommended for CI/CD)**
 ```bash
-npm install --registry https://artifactory.wolterskluwer.io/artifactory/api/npm/npm-remote/
-npm run dev --registry https://artifactory.wolterskluwer.io/artifactory/api/npm/npm-remote/
+npm install --registry https://registry.npmjs.org/
+npm run dev
 ```
 
 **Option 2: Configure .npmrc globally**
 Edit or create `~\.npmrc` (in your home directory) and add:
 ```
-registry=https://artifactory.wolterskluwer.io/artifactory/api/npm/npm-remote/
+registry=https://registry.npmjs.org/
 strict-ssl=false
 ```
 
@@ -40,7 +40,7 @@ npm run preview
 To start the development server:
 
 ```bash
-npm install --registry https://artifactory.wolterskluwer.io/artifactory/api/npm/npm-remote/
+npm install --registry https://registry.npmjs.org/
 npm run dev
 ```
 
@@ -88,7 +88,7 @@ In your GitHub repository settings:
 The GitHub Actions workflow needs to install dependencies. Update the workflow file or create a `.npmrc` in the repo root with:
 
 ```
-registry=https://artifactory.wolterskluwer.io/artifactory/api/npm/npm-remote/
+registry=https://registry.npmjs.org/
 strict-ssl=false
 ```
 
@@ -96,7 +96,7 @@ Or modify `.github/workflows/azure-deploy.yml` to add the registry parameter to 
 
 ```yaml
 - name: Install dependencies
-  run: npm install --registry https://artifactory.wolterskluwer.io/artifactory/api/npm/npm-remote/
+  run: npm install --registry https://registry.npmjs.org/
 ```
 
 ### 5. Deploy
@@ -140,8 +140,8 @@ This starts a local server with the production build output.
 ## Troubleshooting
 
 ### npm install fails with 403 errors
-- Make sure you're using the corporate registry: `https://artifactory.wolterskluwer.io/artifactory/api/npm/npm-remote/`
-- Add the registry parameter to all npm commands or configure `.npmrc`
+- Make sure you're using the public npm registry: `https://registry.npmjs.org/`
+- Add the registry parameter to the install step or configure `.npmrc`
 
 ### App doesn't start in dev mode
 - Ensure port 5173 is not in use

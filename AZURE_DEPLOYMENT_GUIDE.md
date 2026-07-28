@@ -151,7 +151,7 @@ jobs:
           node-version: '18'
 
       - name: Install dependencies
-        run: npm install --registry https://artifactory.wolterskluwer.io/artifactory/api/npm/npm-remote/
+            run: npm install --registry https://registry.npmjs.org/
 
       - name: Build
         run: npm run build
@@ -177,14 +177,14 @@ jobs:
 
 The workflow includes the corporate npm registry. You have two options:
 
-**Option A: Keep registry in workflow (recommended for Azure)**
-- The workflow already has: `npm install --registry https://artifactory.wolterskluwer.io/artifactory/api/npm/npm-remote/`
-- No additional changes needed
+**Option A: Keep the registry override in workflow**
+- The workflow should use: `npm install --registry https://registry.npmjs.org/`
+- This avoids requiring Artifactory credentials in GitHub Actions
 
 **Option B: Use .npmrc file**
 If your `.npmrc` is configured properly:
 ```
-registry=https://artifactory.wolterskluwer.io/artifactory/api/npm/npm-remote/
+registry=https://registry.npmjs.org/
 strict-ssl=false
 ```
 Then simplify the workflow to just: `npm install`
@@ -313,7 +313,7 @@ This is normal for Azure Static Web Apps. They're cached globally. If you need t
 Ensure the workflow has:
 ```yaml
 - name: Install dependencies
-  run: npm install --registry https://artifactory.wolterskluwer.io/artifactory/api/npm/npm-remote/
+   run: npm install --registry https://registry.npmjs.org/
 ```
 
 ---
@@ -419,8 +419,8 @@ npm run build
 # Preview production build
 npm run preview
 
-# Install dependencies with corporate registry
-npm install --registry https://artifactory.wolterskluwer.io/artifactory/api/npm/npm-remote/
+# Install dependencies from the public npm registry
+npm install --registry https://registry.npmjs.org/
 
 # Deploy (after pushing to main)
 # Automatic via GitHub Actions - no manual command needed

@@ -75,10 +75,9 @@ GitHub Secret:
 │        (Full token from Azure)                            │
 └────────────────────────────────────────────────────────────┘
 
-npm Registry (Corporate):
+npm Registry (Public):
 ┌───────────────────────────────────────────────────────────┐
-│ https://artifactory.wolterskluwer.io/artifactory/api/npm │
-│ /npm-remote/                                              │
+│ https://registry.npmjs.org/                               │
 └───────────────────────────────────────────────────────────┘
 ```
 
@@ -210,7 +209,7 @@ GitHub Secret:
   ☑ Secret is active (green icon)
 
 npm Registry (in workflow):
-  ☑ npm install includes: --registry https://artifactory.wolterskluwer.io/artifactory/api/npm/npm-remote/
+   ☑ npm install includes: --registry https://registry.npmjs.org/
 ```
 
 ---

@@ -83,7 +83,7 @@ Quick checklist to get your Budget Tracker deployed to Azure Static Web Apps.
 3. [ ] If missing, create the file with proper content (see guide)
 4. [ ] Verify npm registry line (corporate):
    ```yaml
-   run: npm install --registry https://artifactory.wolterskluwer.io/artifactory/api/npm/npm-remote/
+   run: npm install --registry https://registry.npmjs.org/
    ```
 
 ## ✅ Part 5: Trigger First Deployment (5-10 minutes)
@@ -181,7 +181,7 @@ Your app now auto-deploys when you:
 2. Find the "Install dependencies" step
 3. Make sure it has:
    ```
-   npm install --registry https://artifactory.wolterskluwer.io/artifactory/api/npm/npm-remote/
+   npm install --registry https://registry.npmjs.org/
    ```
 
 ---
