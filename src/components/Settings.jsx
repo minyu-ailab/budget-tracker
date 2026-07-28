@@ -3,13 +3,26 @@ import { themeStore } from '../store/themeStore'
 import './Settings.css'
 
 export default function Settings() {
-  const { categories, transactions } = useStore()
+  const {
+    categories,
+    transactions,
+    monthlyBudgets,
+    replaceData,
+    clearAllData,
+    syncCloudNow,
+    isCloudEnabled,
+    cloudSyncStatus,
+    cloudLastSyncedAt,
+    cloudError,
+  } = useStore()
   const { theme, toggleTheme, currency, setCurrency } = themeStore()
+  const cloudEnabled = isCloudEnabled()
 
   const handleExport = () => {
     const dataToExport = {
       transactions,
       categories,
+      monthlyBudgets,
       exportedAt: new Date().toISOString(),
     }
 
@@ -33,9 +46,8 @@ export default function Settings() {
     reader.onload = (event) => {
       try {
         const importedData = JSON.parse(event.target.result)
-        // In a real app, you'd validate and merge this data
-        console.log('Imported data:', importedData)
-        alert('Data imported successfully! Please refresh the page to see changes.')
+        replaceData(importedData)
+        alert('Data imported successfully.')
       } catch (error) {
         alert('Error importing data. Please check the file format.')
       }
@@ -49,8 +61,7 @@ export default function Settings() {
         'Are you sure you want to clear all data? This action cannot be undone.'
       )
     ) {
-      localStorage.clear()
-      window.location.reload()
+      clearAllData()
     }
   }
 
@@ -148,6 +159,31 @@ export default function Settings() {
             </div>
             <button className="btn-danger" onClick={handleClearData}>
               Clear
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div className="settings-section">
+        <div className="settings-group">
+          <h3>Cloud Database</h3>
+          <div className="setting-item">
+            <div className="setting-label">
+              <span>Status</span>
+              <span className="setting-description">
+                {cloudEnabled ? cloudSyncStatus : 'disabled'}
+                {cloudLastSyncedAt ? ` • Last sync: ${new Date(cloudLastSyncedAt).toLocaleString()}` : ''}
+              </span>
+              {cloudError ? <span className="setting-description">Error: {cloudError}</span> : null}
+            </div>
+            <button
+              className="btn-secondary"
+              onClick={() => {
+                void syncCloudNow()
+              }}
+              disabled={!cloudEnabled || cloudSyncStatus === 'syncing'}
+            >
+              Sync Now
             </button>
           </div>
         </div>

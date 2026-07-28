@@ -12,6 +12,7 @@ A modern, responsive web application for tracking personal budget and expenses. 
 - **Responsive Design** - Works seamlessly on desktop and mobile devices
 - **Data Export/Import** - Backup and restore your budget data
 - **Offline First** - All data stored locally in the browser
+- **Optional Cloud Database Sync** - Persist budget data to Supabase Postgres
 
 ## Tech Stack
 
@@ -78,7 +79,28 @@ npm run preview
 
 ### Environment Variables
 
-No environment variables are required for the basic setup. The app works entirely with client-side storage.
+The app works without environment variables by using local browser storage.
+
+To enable cloud database sync, configure these variables:
+
+```bash
+VITE_CLOUD_DB_ENABLED=true
+VITE_SUPABASE_URL=your_supabase_project_url
+VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+```
+
+You can start by copying `.env.example` to `.env` and filling in the values.
+
+For Azure Static Web Apps, add these values in Azure Portal under your Static Web App Configuration.
+
+### Database Setup (Supabase)
+
+1. Create a Supabase project.
+2. Open the SQL editor.
+3. Run the schema in `supabase/schema.sql`.
+4. Copy project URL and anon key into environment variables.
+
+The app stores transactions, categories, and monthly budgets in a `budget_profiles` table, keyed by a generated device ID.
 
 ## Project Structure
 

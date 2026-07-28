@@ -1,6 +1,11 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { getMonthKey } from '../utils/dateHelpers'
+import {
+  fetchCloudSnapshot,
+  isCloudDatabaseEnabled,
+  saveCloudSnapshot,
+} from '../services/cloudDatabase'
 
 const DEFAULT_CATEGORIES = [
   { id: 'food', name: 'Food & Dining', color: '#ff6b6b', icon: '🍔' },
@@ -13,6 +18,52 @@ const DEFAULT_CATEGORIES = [
   { id: 'other', name: 'Other', color: '#dda0dd', icon: '📌' },
 ]
 
+const normalizeImportedState = (data = {}) => ({
+  transactions: Array.isArray(data.transactions) ? data.transactions : [],
+  categories:
+    Array.isArray(data.categories) && data.categories.length > 0
+      ? data.categories
+      : DEFAULT_CATEGORIES,
+  monthlyBudgets:
+    data.monthlyBudgets && typeof data.monthlyBudgets === 'object'
+      ? data.monthlyBudgets
+      : {},
+})
+
+const createCloudPayload = (state) => ({
+  transactions: state.transactions,
+  categories: state.categories,
+  monthlyBudgets: state.monthlyBudgets,
+})
+
+const syncToCloud = async (get, set) => {
+  if (!isCloudDatabaseEnabled()) {
+    return
+  }
+
+  set({ cloudSyncStatus: 'syncing', cloudError: null })
+
+  try {
+    const payload = createCloudPayload(get())
+    await saveCloudSnapshot(payload)
+    set({
+      cloudSyncStatus: 'ready',
+      cloudLastSyncedAt: new Date().toISOString(),
+      cloudError: null,
+    })
+  } catch (error) {
+    set({
+      cloudSyncStatus: 'error',
+      cloudError: error?.message || 'Failed to sync to cloud database.',
+    })
+  }
+}
+
+const setAndSync = (set, get, updater) => {
+  set(updater)
+  void syncToCloud(get, set)
+}
+
 export const useStore = create(
   persist(
     (set, get) => ({
@@ -20,46 +71,49 @@ export const useStore = create(
       categories: DEFAULT_CATEGORIES,
       monthlyBudgets: {}, // { "2024-01": { categoryId: limit } }
       selectedMonth: new Date(),
+      cloudSyncStatus: isCloudDatabaseEnabled() ? 'idle' : 'disabled',
+      cloudLastSyncedAt: null,
+      cloudError: null,
 
       // Transactions
       addTransaction: (transaction) =>
-        set((state) => ({
+        setAndSync(set, get, (state) => ({
           transactions: [...state.transactions, { ...transaction, id: Date.now().toString() }],
         })),
 
       updateTransaction: (id, updates) =>
-        set((state) => ({
+        setAndSync(set, get, (state) => ({
           transactions: state.transactions.map((t) =>
             t.id === id ? { ...t, ...updates } : t
           ),
         })),
 
       deleteTransaction: (id) =>
-        set((state) => ({
+        setAndSync(set, get, (state) => ({
           transactions: state.transactions.filter((t) => t.id !== id),
         })),
 
       // Categories
       addCategory: (category) =>
-        set((state) => ({
+        setAndSync(set, get, (state) => ({
           categories: [...state.categories, { ...category, id: Date.now().toString() }],
         })),
 
       updateCategory: (id, updates) =>
-        set((state) => ({
+        setAndSync(set, get, (state) => ({
           categories: state.categories.map((c) =>
             c.id === id ? { ...c, ...updates } : c
           ),
         })),
 
       deleteCategory: (id) =>
-        set((state) => ({
+        setAndSync(set, get, (state) => ({
           categories: state.categories.filter((c) => c.id !== id),
         })),
 
       // Budget limits
       setBudgetLimit: (categoryId, limit) =>
-        set((state) => {
+        setAndSync(set, get, (state) => {
           const monthKey = getMonthKey(state.selectedMonth)
           return {
             monthlyBudgets: {
@@ -74,6 +128,25 @@ export const useStore = create(
 
       // Month navigation
       setSelectedMonth: (date) => set({ selectedMonth: date }),
+
+      replaceData: (importedData) => {
+        const normalized = normalizeImportedState(importedData)
+        set(normalized)
+        void syncToCloud(get, set)
+      },
+
+      clearAllData: () =>
+        setAndSync(set, get, {
+          transactions: [],
+          categories: DEFAULT_CATEGORIES,
+          monthlyBudgets: {},
+        }),
+
+      syncCloudNow: async () => {
+        await syncToCloud(get, set)
+      },
+
+      isCloudEnabled: () => isCloudDatabaseEnabled(),
 
       // Selectors
       getMonthTransactions: () => {
@@ -123,9 +196,36 @@ export const useStore = create(
         return monthlyBudgets[monthKey]?.[categoryId] || 0
       },
 
-      initializeStore: () => {
-        // Load from IndexedDB or localStorage if needed
-        // Currently using Zustand's persist middleware
+      initializeStore: async () => {
+        if (!isCloudDatabaseEnabled()) {
+          set({ cloudSyncStatus: 'disabled', cloudError: null })
+          return
+        }
+
+        set({ cloudSyncStatus: 'syncing', cloudError: null })
+
+        try {
+          const cloudRow = await fetchCloudSnapshot()
+          const payload = cloudRow?.payload
+
+          if (payload) {
+            const normalized = normalizeImportedState(payload)
+            set({
+              ...normalized,
+              cloudSyncStatus: 'ready',
+              cloudLastSyncedAt: cloudRow.updated_at || new Date().toISOString(),
+              cloudError: null,
+            })
+            return
+          }
+
+          await syncToCloud(get, set)
+        } catch (error) {
+          set({
+            cloudSyncStatus: 'error',
+            cloudError: error?.message || 'Failed to load from cloud database.',
+          })
+        }
       },
     }),
     {
