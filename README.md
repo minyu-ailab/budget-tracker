@@ -171,6 +171,31 @@ src/
 - Mobile app version
 - Budget goals and savings targets
 
+## Bank Account Sync API
+
+The project now includes serverless API endpoints for linking multiple bank accounts and syncing transactions.
+
+API routes:
+- POST /api/bank/link-token
+- POST /api/bank/exchange-token
+- POST /api/bank/sync-transactions
+
+Implementation location:
+- api/bank-link-token/index.js
+- api/bank-exchange-token/index.js
+- api/bank-sync-transactions/index.js
+
+Required runtime configuration (Azure Static Web Apps Configuration):
+- PLAID_CLIENT_ID
+- PLAID_SECRET
+- PLAID_ENV (sandbox, development, or production)
+- SUPABASE_URL
+- SUPABASE_SERVICE_ROLE_KEY
+
+Important security note:
+- Keep PLAID_SECRET and SUPABASE_SERVICE_ROLE_KEY only in server runtime settings.
+- Never expose those secrets to Vite client variables.
+
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.

@@ -1,0 +1,12 @@
+{
+  "IsEncrypted": false,
+  "Values": {
+    "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+    "FUNCTIONS_WORKER_RUNTIME": "node",
+    "PLAID_CLIENT_ID": "",
+    "PLAID_SECRET": "",
+    "PLAID_ENV": "sandbox",
+    "SUPABASE_URL": "",
+    "SUPABASE_SERVICE_ROLE_KEY": ""
+  }
+}
