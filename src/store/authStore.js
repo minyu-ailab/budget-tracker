@@ -9,6 +9,7 @@ import {
   getStoredAccessToken,
   initializeUserProfile,
   migrateDeviceProfile,
+  setRememberedEmail,
   signInWithPassword,
   signOut,
   signUpWithPassword,
@@ -121,11 +122,13 @@ export const useAuthStore = create(
         }
       },
 
-      signIn: async ({ email, password }) => {
+      signIn: async ({ email, password, rememberSession }) => {
         set({ status: 'loading', error: null, infoMessage: '' })
 
         try {
-          const session = await signInWithPassword({ email, password })
+          const session = await signInWithPassword({ email, password, rememberSession })
+
+          setRememberedEmail(rememberSession ? email : '')
 
           await migrateDeviceProfile({
             accessToken: session.accessToken,
@@ -169,11 +172,7 @@ export const useAuthStore = create(
     }),
     {
       name: 'budget-tracker-auth',
-      partialize: (state) => ({
-        accessToken: state.accessToken,
-        refreshToken: state.refreshToken,
-        user: state.user,
-      }),
+      partialize: () => ({}),
     }
   )
 )

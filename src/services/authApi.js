@@ -4,6 +4,7 @@ const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY
 export const AUTH_ACCESS_TOKEN_KEY = 'budget-tracker-auth-access-token'
 export const AUTH_REFRESH_TOKEN_KEY = 'budget-tracker-auth-refresh-token'
 export const ACTIVE_USER_ID_KEY = 'budget-tracker-active-user-id'
+export const REMEMBER_EMAIL_KEY = 'budget-tracker-remember-email'
 
 const ensureAuthConfig = () => {
   if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
@@ -40,19 +41,44 @@ const requestJson = async (url, options) => {
   return response.status === 204 ? null : response.json()
 }
 
-const setSessionStorage = ({ accessToken, refreshToken, userId }) => {
-  localStorage.setItem(AUTH_ACCESS_TOKEN_KEY, accessToken)
-  localStorage.setItem(AUTH_REFRESH_TOKEN_KEY, refreshToken)
-  localStorage.setItem(ACTIVE_USER_ID_KEY, userId)
+const getStorageForSession = (rememberSession) =>
+  rememberSession ? localStorage : sessionStorage
+
+const clearTokenStorage = (storage) => {
+  storage.removeItem(AUTH_ACCESS_TOKEN_KEY)
+  storage.removeItem(AUTH_REFRESH_TOKEN_KEY)
+  storage.removeItem(ACTIVE_USER_ID_KEY)
+}
+
+const setSessionStorage = ({ accessToken, refreshToken, userId, rememberSession }) => {
+  const targetStorage = getStorageForSession(rememberSession)
+  const otherStorage = rememberSession ? sessionStorage : localStorage
+
+  clearTokenStorage(otherStorage)
+
+  targetStorage.setItem(AUTH_ACCESS_TOKEN_KEY, accessToken)
+  targetStorage.setItem(AUTH_REFRESH_TOKEN_KEY, refreshToken)
+  targetStorage.setItem(ACTIVE_USER_ID_KEY, userId)
 }
 
 export const clearSessionStorage = () => {
-  localStorage.removeItem(AUTH_ACCESS_TOKEN_KEY)
-  localStorage.removeItem(AUTH_REFRESH_TOKEN_KEY)
-  localStorage.removeItem(ACTIVE_USER_ID_KEY)
+  clearTokenStorage(localStorage)
+  clearTokenStorage(sessionStorage)
 }
 
-export const getStoredAccessToken = () => localStorage.getItem(AUTH_ACCESS_TOKEN_KEY)
+export const getStoredAccessToken = () =>
+  localStorage.getItem(AUTH_ACCESS_TOKEN_KEY) ||
+  sessionStorage.getItem(AUTH_ACCESS_TOKEN_KEY)
+
+export const getRememberedEmail = () => localStorage.getItem(REMEMBER_EMAIL_KEY) || ''
+
+export const setRememberedEmail = (email) => {
+  if (email) {
+    localStorage.setItem(REMEMBER_EMAIL_KEY, email)
+  } else {
+    localStorage.removeItem(REMEMBER_EMAIL_KEY)
+  }
+}
 
 export const signUpWithPassword = async ({ email, password, name, phone }) => {
   ensureAuthConfig()
@@ -73,7 +99,7 @@ export const signUpWithPassword = async ({ email, password, name, phone }) => {
   return data
 }
 
-export const signInWithPassword = async ({ email, password }) => {
+export const signInWithPassword = async ({ email, password, rememberSession = true }) => {
   ensureAuthConfig()
 
   const session = await requestJson(`${SUPABASE_URL}/auth/v1/token?grant_type=password`, {
@@ -91,6 +117,7 @@ export const signInWithPassword = async ({ email, password }) => {
     accessToken: session.access_token,
     refreshToken: session.refresh_token,
     userId: user.id,
+    rememberSession,
   })
 
   return {

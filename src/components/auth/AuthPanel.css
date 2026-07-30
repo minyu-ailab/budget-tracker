@@ -83,6 +83,22 @@ html.dark .auth-tab {
   font-weight: 600;
 }
 
+.remember-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 500;
+  color: var(--color-light-text-secondary);
+}
+
+html.dark .remember-row {
+  color: var(--color-dark-text-secondary);
+}
+
+.remember-row input {
+  width: auto;
+}
+
 .auth-form input,
 .auth-form select {
   width: 100%;

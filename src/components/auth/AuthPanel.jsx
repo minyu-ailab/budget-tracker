@@ -1,10 +1,12 @@
 import { useState } from 'react'
 import { useAuthStore } from '../../store/authStore'
+import { getRememberedEmail } from '../../services/authApi'
 import './AuthPanel.css'
 
 const INITIAL_SIGNIN = {
-  email: '',
+  email: getRememberedEmail(),
   password: '',
+  rememberSession: Boolean(getRememberedEmail()),
 }
 
 const INITIAL_SIGNUP = {
@@ -66,6 +68,7 @@ export default function AuthPanel() {
                 onChange={(event) =>
                   setSignInForm((state) => ({ ...state, email: event.target.value }))
                 }
+                autoComplete="email"
                 required
               />
             </label>
@@ -78,8 +81,23 @@ export default function AuthPanel() {
                 onChange={(event) =>
                   setSignInForm((state) => ({ ...state, password: event.target.value }))
                 }
+                autoComplete="current-password"
                 required
               />
+            </label>
+
+            <label className="remember-row">
+              <input
+                type="checkbox"
+                checked={Boolean(signInForm.rememberSession)}
+                onChange={(event) =>
+                  setSignInForm((state) => ({
+                    ...state,
+                    rememberSession: event.target.checked,
+                  }))
+                }
+              />
+              Remember me on this device
             </label>
 
             <button type="submit" className="btn-primary" disabled={isSubmitting}>
@@ -96,6 +114,7 @@ export default function AuthPanel() {
                 onChange={(event) =>
                   setSignUpForm((state) => ({ ...state, name: event.target.value }))
                 }
+                autoComplete="name"
                 required
               />
             </label>
@@ -108,6 +127,7 @@ export default function AuthPanel() {
                 onChange={(event) =>
                   setSignUpForm((state) => ({ ...state, email: event.target.value }))
                 }
+                autoComplete="email"
                 required
               />
             </label>
@@ -120,6 +140,7 @@ export default function AuthPanel() {
                 onChange={(event) =>
                   setSignUpForm((state) => ({ ...state, phone: event.target.value }))
                 }
+                autoComplete="tel"
                 required
               />
             </label>
@@ -132,6 +153,7 @@ export default function AuthPanel() {
                 onChange={(event) =>
                   setSignUpForm((state) => ({ ...state, password: event.target.value }))
                 }
+                autoComplete="new-password"
                 required
               />
             </label>
