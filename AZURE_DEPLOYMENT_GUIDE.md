@@ -330,7 +330,7 @@ Your workflow is now configured to:
 
 ### View Deployment History
 
-1. Azure Portal > Static Web App > **"Deployments"**
+1. Azure Portal > Static Web App > **"Deployments" **
 2. See all past deployments with:
    - Timestamp
    - Commit message
