@@ -1,8 +1,6 @@
 const {
-  badRequest,
   json,
   methodNotAllowed,
-  parseRequestBody,
   serverError,
 } = require('../_shared/http')
 const { plaidRequest } = require('../_shared/plaid')
@@ -11,6 +9,7 @@ const {
   patchSupabaseRows,
   upsertSupabaseRow,
 } = require('../_shared/supabaseAdmin')
+const { asAuthResponse, requireAuth } = require('../_shared/auth')
 
 const mapPlaidCategoryToAppCategory = (transaction) => {
   const primary = transaction?.personal_finance_category?.primary || ''
@@ -86,7 +85,7 @@ const mergeTransactions = (existingTransactions, importedTransactions, removedId
   return [...manualOnly, ...byExternalId.values()]
 }
 
-const syncItemTransactions = async (profileId, connection) => {
+const syncItemTransactions = async (userId, connection) => {
   const cursorRows = await fetchSupabaseRows(
     `bank_item_cursors?select=item_id,cursor&item_id=eq.${encodeURIComponent(connection.item_id)}&limit=1`
   )
@@ -112,7 +111,8 @@ const syncItemTransactions = async (profileId, connection) => {
   await upsertSupabaseRow(
     'bank_item_cursors',
     {
-      profile_id: profileId,
+      profile_id: userId,
+      user_id: userId,
       item_id: connection.item_id,
       cursor: cursor || '',
       last_synced_at: new Date().toISOString(),
@@ -135,16 +135,10 @@ module.exports = async function (context, req) {
   }
 
   try {
-    const body = await parseRequestBody(req)
-    const profileId = body.profileId
-
-    if (!profileId) {
-      context.res = badRequest('Missing profileId.')
-      return
-    }
+    const { user } = await requireAuth(req)
 
     const connections = await fetchSupabaseRows(
-      `bank_connections?select=item_id,access_token&profile_id=eq.${encodeURIComponent(profileId)}`
+      `bank_connections?select=item_id,access_token&user_id=eq.${encodeURIComponent(user.id)}`
     )
 
     if (!connections.length) {
@@ -160,13 +154,13 @@ module.exports = async function (context, req) {
     let allRemovedIds = []
 
     for (const connection of connections) {
-      const result = await syncItemTransactions(profileId, connection)
+      const result = await syncItemTransactions(user.id, connection)
       allImported = [...allImported, ...result.importedTransactions]
       allRemovedIds = [...allRemovedIds, ...result.removedIds]
     }
 
     const profileRows = await fetchSupabaseRows(
-      `budget_profiles?select=device_id,payload&device_id=eq.${encodeURIComponent(profileId)}&limit=1`
+      `budget_profiles?select=user_id,device_id,payload&user_id=eq.${encodeURIComponent(user.id)}&limit=1`
     )
 
     const existingPayload = profileRows?.[0]?.payload || {}
@@ -189,7 +183,7 @@ module.exports = async function (context, req) {
 
     const updatedRows = await patchSupabaseRows(
       'budget_profiles',
-      `device_id=eq.${encodeURIComponent(profileId)}`,
+      `user_id=eq.${encodeURIComponent(user.id)}`,
       {
         payload: updatedPayload,
         updated_at: syncedAt,
@@ -200,11 +194,12 @@ module.exports = async function (context, req) {
       await upsertSupabaseRow(
         'budget_profiles',
         {
-          device_id: profileId,
+          user_id: user.id,
+          device_id: profileRows?.[0]?.device_id || null,
           payload: updatedPayload,
           updated_at: syncedAt,
         },
-        'device_id'
+        'user_id'
       )
     }
 
@@ -216,7 +211,11 @@ module.exports = async function (context, req) {
       transactions: mergedTransactions,
     })
   } catch (error) {
-    context.log.error('bank/sync-transactions error', error)
-    context.res = serverError(error.message)
+    try {
+      context.res = asAuthResponse(error)
+    } catch (authUnhandled) {
+      context.log.error('bank/sync-transactions error', authUnhandled)
+      context.res = serverError(authUnhandled.message)
+    }
   }
 }

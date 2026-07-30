@@ -1,4 +1,4 @@
-import { getOrCreateDeviceId } from './cloudDatabase'
+import { getStoredAccessToken } from './authApi'
 
 const parseErrorMessage = async (response) => {
   try {
@@ -10,10 +10,16 @@ const parseErrorMessage = async (response) => {
 }
 
 const postJson = async (path, body) => {
+  const accessToken = getStoredAccessToken()
   const response = await fetch(path, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
+      ...(accessToken
+        ? {
+            Authorization: `Bearer ${accessToken}`,
+          }
+        : {}),
     },
     body: JSON.stringify(body),
   })
@@ -25,25 +31,20 @@ const postJson = async (path, body) => {
   return response.json()
 }
 
-const withProfileId = (payload = {}) => ({
-  profileId: getOrCreateDeviceId(),
-  ...payload,
-})
-
 export const createBankLinkToken = async () =>
-  postJson('/api/bank/link-token', withProfileId())
+  postJson('/api/bank/link-token', {})
 
 export const exchangeBankPublicToken = async ({ publicToken, institutionName }) =>
   postJson(
     '/api/bank/exchange-token',
-    withProfileId({
+    {
       publicToken,
       institutionName,
-    })
+    }
   )
 
 export const listBankConnections = async () =>
-  postJson('/api/bank/connections', withProfileId())
+  postJson('/api/bank/connections', {})
 
 export const syncBankTransactions = async () =>
-  postJson('/api/bank/sync-transactions', withProfileId())
+  postJson('/api/bank/sync-transactions', {})

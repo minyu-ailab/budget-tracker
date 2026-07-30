@@ -7,6 +7,7 @@
     "PLAID_SECRET": "",
     "PLAID_ENV": "sandbox",
     "SUPABASE_URL": "",
+    "SUPABASE_ANON_KEY": "",
     "SUPABASE_SERVICE_ROLE_KEY": ""
   }
 }

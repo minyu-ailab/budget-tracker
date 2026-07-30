@@ -3,6 +3,7 @@ const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
 const cloudDbEnabled = import.meta.env.VITE_CLOUD_DB_ENABLED === 'true'
 
 const DEVICE_ID_KEY = 'budget-tracker-device-id'
+const ACTIVE_USER_ID_KEY = 'budget-tracker-active-user-id'
 
 const hasCloudConfig = () => Boolean(supabaseUrl && supabaseAnonKey)
 
@@ -15,6 +16,8 @@ const buildHeaders = () => ({
 })
 
 const apiBase = () => `${supabaseUrl}/rest/v1/budget_profiles`
+
+const getActiveUserId = () => localStorage.getItem(ACTIVE_USER_ID_KEY)
 
 export const getOrCreateDeviceId = () => {
   const existing = localStorage.getItem(DEVICE_ID_KEY)
@@ -36,8 +39,11 @@ export const fetchCloudSnapshot = async () => {
     return null
   }
 
-  const deviceId = getOrCreateDeviceId()
-  const query = `?select=payload,updated_at&device_id=eq.${encodeURIComponent(deviceId)}&limit=1`
+  const activeUserId = getActiveUserId()
+  const query = activeUserId
+    ? `?select=payload,updated_at&user_id=eq.${encodeURIComponent(activeUserId)}&limit=1`
+    : `?select=payload,updated_at&device_id=eq.${encodeURIComponent(getOrCreateDeviceId())}&limit=1`
+
   const response = await fetch(`${apiBase()}${query}`, {
     method: 'GET',
     headers: buildHeaders(),
@@ -57,14 +63,17 @@ export const saveCloudSnapshot = async (payload) => {
     return null
   }
 
+  const activeUserId = getActiveUserId()
   const deviceId = getOrCreateDeviceId()
   const row = {
-    device_id: deviceId,
+    device_id: activeUserId ? null : deviceId,
+    user_id: activeUserId || null,
     payload,
     updated_at: new Date().toISOString(),
   }
 
-  const response = await fetch(`${apiBase()}?on_conflict=device_id`, {
+  const conflictKey = activeUserId ? 'user_id' : 'device_id'
+  const response = await fetch(`${apiBase()}?on_conflict=${conflictKey}`, {
     method: 'POST',
     headers: {
       ...buildHeaders(),

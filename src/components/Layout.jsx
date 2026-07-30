@@ -1,10 +1,12 @@
-import { Moon, Sun, Menu, X } from 'lucide-react'
+import { Moon, Sun, Menu, X, LogOut } from 'lucide-react'
 import { useState } from 'react'
 import { themeStore } from '../store/themeStore'
+import { useAuthStore } from '../store/authStore'
 import './Layout.css'
 
 export default function Layout({ activeTab, onTabChange, children }) {
   const { theme, toggleTheme } = themeStore()
+  const { user, signOutCurrentUser } = useAuthStore()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   const tabs = [
@@ -42,12 +44,23 @@ export default function Layout({ activeTab, onTabChange, children }) {
           </nav>
 
           <div className="layout-controls">
+            <span className="user-chip" title={user?.email || ''}>{user?.email || 'Signed in'}</span>
             <button
               className="theme-toggle"
               onClick={toggleTheme}
               title={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
             >
               {theme === 'light' ? <Moon size={20} /> : <Sun size={20} />}
+            </button>
+
+            <button
+              className="theme-toggle"
+              onClick={() => {
+                void signOutCurrentUser()
+              }}
+              title="Sign out"
+            >
+              <LogOut size={20} />
             </button>
 
             <button

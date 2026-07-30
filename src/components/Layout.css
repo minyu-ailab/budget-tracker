@@ -89,6 +89,26 @@ html.dark .nav-tab.active {
   align-items: center;
 }
 
+.user-chip {
+  max-width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-light-text-secondary);
+  background-color: var(--color-light-bg);
+  border: 1px solid var(--color-light-border);
+}
+
+html.dark .user-chip {
+  color: var(--color-dark-text-secondary);
+  background-color: var(--color-dark-bg);
+  border-color: var(--color-dark-border);
+}
+
 .theme-toggle {
   padding: var(--spacing-sm);
   border-radius: var(--radius-md);
@@ -205,6 +225,10 @@ html.dark .layout-footer {
   }
 
   .layout-nav {
+    display: none;
+  }
+
+  .user-chip {
     display: none;
   }
 

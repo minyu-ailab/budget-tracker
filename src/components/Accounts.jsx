@@ -26,6 +26,12 @@ export default function Accounts() {
   const [isPlaidReady, setIsPlaidReady] = useState(false)
   const [plaidHandler, setPlaidHandler] = useState(null)
 
+  const formatPlaidError = (error) => {
+    const message = error?.display_message || error?.error_message || 'Plaid flow was closed.'
+    const details = [error?.error_code, error?.error_type].filter(Boolean).join(' / ')
+    return details ? `${message} (${details})` : message
+  }
+
   const isSyncing = bankSyncStatus === 'syncing'
 
   const sortedConnections = useMemo(
@@ -67,8 +73,8 @@ export default function Accounts() {
         }
       },
       onExit: (error) => {
-        if (error?.display_message || error?.error_message) {
-          setStatusMessage(error.display_message || error.error_message)
+        if (error) {
+          setStatusMessage(formatPlaidError(error))
         }
       },
     })

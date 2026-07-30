@@ -1,5 +1,4 @@
 const {
-  badRequest,
   json,
   methodNotAllowed,
   parseRequestBody,
@@ -7,6 +6,7 @@ const {
 } = require('../_shared/http')
 const { plaidRequest } = require('../_shared/plaid')
 const { upsertSupabaseRow } = require('../_shared/supabaseAdmin')
+const { asAuthResponse, requireAuth } = require('../_shared/auth')
 
 module.exports = async function (context, req) {
   if (req.method !== 'POST') {
@@ -15,11 +15,12 @@ module.exports = async function (context, req) {
   }
 
   try {
+    const { user } = await requireAuth(req)
     const body = await parseRequestBody(req)
-    const { profileId, publicToken, institutionName } = body
+    const { publicToken, institutionName } = body
 
-    if (!profileId || !publicToken) {
-      context.res = badRequest('Missing profileId or publicToken.')
+    if (!publicToken) {
+      context.res = json(400, { error: 'Missing publicToken.' })
       return
     }
 
@@ -28,7 +29,8 @@ module.exports = async function (context, req) {
     })
 
     const row = {
-      profile_id: profileId,
+      profile_id: user.id,
+      user_id: user.id,
       item_id: exchangeResponse.item_id,
       access_token: exchangeResponse.access_token,
       institution_name: institutionName || 'Linked Bank',
@@ -42,7 +44,11 @@ module.exports = async function (context, req) {
       itemId: exchangeResponse.item_id,
     })
   } catch (error) {
-    context.log.error('bank/exchange-token error', error)
-    context.res = serverError(error.message)
+    try {
+      context.res = asAuthResponse(error)
+    } catch (authUnhandled) {
+      context.log.error('bank/exchange-token error', authUnhandled)
+      context.res = serverError(authUnhandled.message)
+    }
   }
 }
