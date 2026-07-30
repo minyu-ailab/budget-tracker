@@ -176,11 +176,13 @@ module.exports = async function (context, req) {
       allRemovedIds
     )
 
+    const syncedAt = new Date().toISOString()
+
     const updatedPayload = {
       ...existingPayload,
       transactions: mergedTransactions,
       bankSync: {
-        lastSyncedAt: new Date().toISOString(),
+        lastSyncedAt: syncedAt,
         importedCount: allImported.length,
       },
     }
@@ -190,7 +192,7 @@ module.exports = async function (context, req) {
       `device_id=eq.${encodeURIComponent(profileId)}`,
       {
         payload: updatedPayload,
-        updated_at: new Date().toISOString(),
+        updated_at: syncedAt,
       }
     )
 
@@ -200,7 +202,7 @@ module.exports = async function (context, req) {
         {
           device_id: profileId,
           payload: updatedPayload,
-          updated_at: new Date().toISOString(),
+          updated_at: syncedAt,
         },
         'device_id'
       )
@@ -210,6 +212,8 @@ module.exports = async function (context, req) {
       success: true,
       importedCount: allImported.length,
       removedCount: allRemovedIds.length,
+      lastSyncedAt: syncedAt,
+      transactions: mergedTransactions,
     })
   } catch (error) {
     context.log.error('bank/sync-transactions error', error)

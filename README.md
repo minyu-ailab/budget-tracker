@@ -7,6 +7,7 @@ A modern, responsive web application for tracking personal budget and expenses. 
 - **Dashboard** - View summary statistics with income vs expense visualization
 - **Transaction Management** - Add, edit, and delete transactions with filters
 - **Category Budgets** - Set monthly spending limits per category with progress tracking
+- **Accounts (Plaid)** - Link bank accounts, view connected institutions, and sync transactions
 - **Month Navigation** - Switch between different months to view historical data
 - **Dark/Light Mode** - Toggle between themes with persistent preference
 - **Responsive Design** - Works seamlessly on desktop and mobile devices
@@ -132,9 +133,15 @@ src/
 
 ### Transaction Management
 - Add transactions with name, amount, type (income/expense), category, date, and notes
-- Search and filter transactions by type and category
+- Search and filter transactions by type, category, and source (all/manual/bank)
 - Edit and delete existing transactions
 - Visual indicators for income (green) and expenses (red)
+
+### Accounts
+- Link bank accounts from the Accounts tab using Plaid Link
+- View connected bank institutions and latest connection update time
+- Trigger transaction sync manually, with automatic sync after a successful link
+- Imported bank transactions are merged into the main Transactions list
 
 ### Category Budgets
 - Set monthly spending limits for each expense category
@@ -178,11 +185,13 @@ The project now includes serverless API endpoints for linking multiple bank acco
 API routes:
 - POST /api/bank/link-token
 - POST /api/bank/exchange-token
+- POST /api/bank/connections
 - POST /api/bank/sync-transactions
 
 Implementation location:
 - api/bank-link-token/index.js
 - api/bank-exchange-token/index.js
+- api/bank-connections/index.js
 - api/bank-sync-transactions/index.js
 
 Required runtime configuration (Azure Static Web Apps Configuration):

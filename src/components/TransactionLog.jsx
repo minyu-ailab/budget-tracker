@@ -14,6 +14,8 @@ export default function TransactionLog() {
     updateTransaction,
     deleteTransaction,
     categories,
+    transactionSourceFilter,
+    setTransactionSourceFilter,
   } = useStore()
   const { currency } = themeStore()
   const [showForm, setShowForm] = useState(false)
@@ -28,7 +30,11 @@ export default function TransactionLog() {
     const matchesSearch = t.name.toLowerCase().includes(searchTerm.toLowerCase())
     const matchesType = filterType === 'all' || t.type === filterType
     const matchesCategory = filterCategory === 'all' || t.category === filterCategory
-    return matchesSearch && matchesType && matchesCategory
+    const matchesSource =
+      transactionSourceFilter === 'all' ||
+      (transactionSourceFilter === 'bank' && t.source === 'bank') ||
+      (transactionSourceFilter === 'manual' && t.source !== 'bank')
+    return matchesSearch && matchesType && matchesCategory && matchesSource
   })
 
   const handleAddTransaction = (transaction) => {
@@ -86,6 +92,30 @@ export default function TransactionLog() {
       )}
 
       <div className="filters">
+        <div className="source-filter-group" role="group" aria-label="Transaction source filter">
+          <button
+            type="button"
+            className={`source-filter-chip ${transactionSourceFilter === 'all' ? 'active' : ''}`}
+            onClick={() => setTransactionSourceFilter('all')}
+          >
+            All
+          </button>
+          <button
+            type="button"
+            className={`source-filter-chip ${transactionSourceFilter === 'manual' ? 'active' : ''}`}
+            onClick={() => setTransactionSourceFilter('manual')}
+          >
+            Manual
+          </button>
+          <button
+            type="button"
+            className={`source-filter-chip ${transactionSourceFilter === 'bank' ? 'active' : ''}`}
+            onClick={() => setTransactionSourceFilter('bank')}
+          >
+            Bank
+          </button>
+        </div>
+
         <input
           type="text"
           placeholder="Search transactions..."
@@ -136,6 +166,9 @@ export default function TransactionLog() {
                   <span className="category-badge">
                     {getCategoryName(transaction.category)}
                   </span>
+                  {transaction.source === 'bank' ? (
+                    <span className="transaction-source-badge">Bank import</span>
+                  ) : null}
                   <span className="transaction-date">
                     {formatDate(transaction.date)}
                   </span>

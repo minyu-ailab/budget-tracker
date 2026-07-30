@@ -12,9 +12,13 @@ This folder contains HTTP-triggered Azure Functions used for bank account linkin
   - Request body: { "profileId": "...", "publicToken": "...", "institutionName": "..." }
   - Response: { "success": true, "itemId": "..." }
 
+- POST /api/bank/connections
+  - Request body: { "profileId": "..." }
+  - Response: { "success": true, "accounts": [{ "item_id": "...", "institution_name": "...", "updated_at": "..." }] }
+
 - POST /api/bank/sync-transactions
   - Request body: { "profileId": "..." }
-  - Response: { "success": true, "importedCount": number, "removedCount": number }
+  - Response: { "success": true, "importedCount": number, "removedCount": number, "lastSyncedAt": "...", "transactions": [...] }
 
 ## Runtime Environment Variables
 

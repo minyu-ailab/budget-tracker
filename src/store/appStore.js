@@ -6,6 +6,11 @@ import {
   isCloudDatabaseEnabled,
   saveCloudSnapshot,
 } from '../services/cloudDatabase'
+import {
+  exchangeBankPublicToken,
+  listBankConnections,
+  syncBankTransactions as syncBankTransactionsApi,
+} from '../services/bankApi'
 
 const DEFAULT_CATEGORIES = [
   { id: 'food', name: 'Food & Dining', color: '#ff6b6b', icon: '🍔' },
@@ -28,12 +33,24 @@ const normalizeImportedState = (data = {}) => ({
     data.monthlyBudgets && typeof data.monthlyBudgets === 'object'
       ? data.monthlyBudgets
       : {},
+  bankLastSyncedAt:
+    data.bankSync && typeof data.bankSync === 'object'
+      ? data.bankSync.lastSyncedAt || null
+      : null,
+  bankLastImportedCount:
+    data.bankSync && typeof data.bankSync === 'object'
+      ? Number(data.bankSync.importedCount || 0)
+      : 0,
 })
 
 const createCloudPayload = (state) => ({
   transactions: state.transactions,
   categories: state.categories,
   monthlyBudgets: state.monthlyBudgets,
+  bankSync: {
+    lastSyncedAt: state.bankLastSyncedAt,
+    importedCount: state.bankLastImportedCount,
+  },
 })
 
 const syncToCloud = async (get, set) => {
@@ -74,6 +91,12 @@ export const useStore = create(
       cloudSyncStatus: isCloudDatabaseEnabled() ? 'idle' : 'disabled',
       cloudLastSyncedAt: null,
       cloudError: null,
+      bankConnections: [],
+      bankSyncStatus: 'idle',
+      bankLastSyncedAt: null,
+      bankLastImportedCount: 0,
+      bankError: null,
+      transactionSourceFilter: 'all',
 
       // Transactions
       addTransaction: (transaction) =>
@@ -140,6 +163,8 @@ export const useStore = create(
           transactions: [],
           categories: DEFAULT_CATEGORIES,
           monthlyBudgets: {},
+          bankLastSyncedAt: null,
+          bankLastImportedCount: 0,
         }),
 
       syncCloudNow: async () => {
@@ -147,6 +172,61 @@ export const useStore = create(
       },
 
       isCloudEnabled: () => isCloudDatabaseEnabled(),
+
+      loadConnectedAccounts: async () => {
+        set({ bankError: null })
+
+        try {
+          const response = await listBankConnections()
+          set({
+            bankConnections: Array.isArray(response.accounts) ? response.accounts : [],
+            bankError: null,
+          })
+          return response
+        } catch (error) {
+          set({
+            bankError: error?.message || 'Failed to load connected accounts.',
+          })
+          throw error
+        }
+      },
+
+      syncBankTransactions: async () => {
+        set({
+          bankSyncStatus: 'syncing',
+          bankError: null,
+        })
+
+        try {
+          const response = await syncBankTransactionsApi()
+          set({
+            transactions: Array.isArray(response.transactions)
+              ? response.transactions
+              : get().transactions,
+            bankSyncStatus: 'ready',
+            bankLastSyncedAt: response.lastSyncedAt || new Date().toISOString(),
+            bankLastImportedCount: Number(response.importedCount || 0),
+            bankError: null,
+          })
+          return response
+        } catch (error) {
+          set({
+            bankSyncStatus: 'error',
+            bankError: error?.message || 'Failed to sync bank transactions.',
+          })
+          throw error
+        }
+      },
+
+      linkBankAccount: async ({ publicToken, institutionName }) => {
+        await exchangeBankPublicToken({ publicToken, institutionName })
+        await get().loadConnectedAccounts()
+        return get().syncBankTransactions()
+      },
+
+      setTransactionSourceFilter: (filter) => {
+        set({ transactionSourceFilter: filter })
+      },
 
       // Selectors
       getMonthTransactions: () => {
@@ -214,6 +294,7 @@ export const useStore = create(
               ...normalized,
               cloudSyncStatus: 'ready',
               cloudLastSyncedAt: cloudRow.updated_at || new Date().toISOString(),
+              bankSyncStatus: 'ready',
               cloudError: null,
             })
             return

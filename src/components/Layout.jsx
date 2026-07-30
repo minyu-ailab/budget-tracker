@@ -11,6 +11,7 @@ export default function Layout({ activeTab, onTabChange, children }) {
     { id: 'dashboard', label: 'Dashboard' },
     { id: 'transactions', label: 'Transactions' },
     { id: 'budgets', label: 'Budgets' },
+    { id: 'accounts', label: 'Accounts' },
     { id: 'settings', label: 'Settings' },
   ]
 

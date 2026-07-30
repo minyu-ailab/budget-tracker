@@ -6,6 +6,7 @@ import Dashboard from './components/Dashboard'
 import TransactionLog from './components/TransactionLog'
 import CategoryBudgets from './components/CategoryBudgets'
 import Settings from './components/Settings'
+import Accounts from './components/Accounts'
 import './App.css'
 
 function App() {
@@ -35,6 +36,8 @@ function App() {
         return <TransactionLog />
       case 'budgets':
         return <CategoryBudgets />
+      case 'accounts':
+        return <Accounts />
       case 'settings':
         return <Settings />
       default:
